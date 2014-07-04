@@ -1,29 +1,30 @@
-# Univedo::Shell
+# Univedo Shell
 
-TODO: Write a gem description
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'univedo-shell'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install univedo-shell
+    gem install univedo-shell
 
 ## Usage
 
-TODO: Write usage instructions here
+```shell
+univedo-shell <url> <perspective>
+# e.g.
+univedo-shell ws://localhost/f8018f09-fb75-4d3d-8e11-44b2dc796130 468145f2-4ebb-405b-8a42-bcbab94cd0d0
+# Passing a UTS file
+univedo-shell -u path/to/file.uts ws://localhost/f8018f09-fb75-4d3d-8e11-44b2dc796130 468145f2-4ebb-405b-8a42-bcbab94cd0d0
+```
 
-## Contributing
+Then just type your SQL queries:
 
-1. Fork it ( https://github.com/[my-github-username]/univedo-shell/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+```shell
+$ univedo-shell ws://localhost/f8018f09-fb75-4d3d-8e11-44b2dc796130 468145f2-4ebb-405b-8a42-bcbab94cd0d0
+Connected.
+>> SELECT * FROM people LIMIT 2
++------------+-----------------+----------------------+----+--------+-----------------------+
+| first_name | home_address_id | home_phone_number_id | id | name   | work_email_address_id |
++------------+-----------------+----------------------+----+--------+-----------------------+
+| Brannon    | 1               | 1                    | 1  | Welsh  | 1                     |
+| Alvera     | 2               | 2                    | 2  | Glover | 2                     |
++------------+-----------------+----------------------+----+--------+-----------------------+
+Completed in 2.69 ms.
+>> q
+$
+```

@@ -1,1 +1,120 @@
 #!/usr/bin/env ruby
+
+$: << File.dirname(__FILE__) + "/../lib"
+
+require "coolline"
+require "coderay"
+require "terminal-table"
+require "runivedo"
+require "univedo-shell"
+require "optparse"
+require "term/ansicolor"
+require "benchmark"
+
+class String
+  include Term::ANSIColor
+end
+
+#################################
+# Parse options
+#################################
+
+options = {}
+op = OptionParser.new do |opts|
+  opts.banner = "Usage: univedo-shell [options] <url> <perspective>"
+
+  opts.on "-u", "--uts [UTS]", "Send UTS file to server" do |path|
+    options[:uts] = path
+  end
+
+  opts.on "-h", "--help", "Display this help" do
+    puts opts
+    exit
+  end
+end
+op.parse!
+
+if ARGV.count != 2
+  puts op
+  exit 1
+end
+options[:url] = ARGV.shift
+options[:perspective] = ARGV.shift
+
+
+#################################
+# Univedo connection
+#################################
+
+session = Runivedo::Session.new options[:url], username: "marvin"
+puts "Connected."
+session.apply_uts(File.read(options[:uts])) if options[:uts]
+perspective = session.get_perspective(options[:perspective])
+query = perspective.query
+
+
+#################################
+# Shell setup
+#################################
+
+COMPLETION_ITEMS = (CodeRay::Scanners::SQL::KEYWORDS +
+                    CodeRay::Scanners::SQL::OBJECTS +
+                    CodeRay::Scanners::SQL::COMMANDS +
+                    CodeRay::Scanners::SQL::PREDEFINED_TYPES +
+                    CodeRay::Scanners::SQL::PREDEFINED_FUNCTIONS +
+                    CodeRay::Scanners::SQL::DIRECTIVES +
+                    CodeRay::Scanners::SQL::PREDEFINED_CONSTANTS).map(&:upcase)
+
+cool = Coolline.new do |c|
+  c.transform_proc = proc do
+    CodeRay.scan(c.line, :sql).term
+  end
+
+  c.completion_proc = proc do
+    word = c.completed_word.upcase
+    COMPLETION_ITEMS.select {|w| w.start_with? word}
+  end
+end
+
+
+#################################
+# Main program
+#################################
+
+loop do
+  line = cool.readline
+  break if line.nil?
+  line.strip!
+  next if line.empty?
+  case line
+  when "q", "quit", "exit"
+    break
+  when "version", "info", "v"
+    puts "Univedo Shell #{UnivedoShell::VERSION}"
+    puts "(c) 2012-2014 Univedo"
+  when "h", "?", "help"
+    puts "Just type SQL queries. Quit with 'q'."
+  else
+    time = Benchmark.realtime do
+      begin
+        query.prepare(line) do |stmt|
+          stmt.execute do |result|
+            case
+            when id = result.last_inserted_id
+              puts "Inserted record with id #{id}".green
+            when num = result.num_affected_rows
+              puts "#{num} #{num == 1 ? 'row' : 'rows'} affected".green
+            else
+              rows = result.to_a
+              puts Terminal::Table.new rows: rows, headings: stmt.column_names.map(&:bold)
+            end
+          end
+        end
+      rescue Runivedo::SqlError => e
+        puts e.to_s.strip.red
+      end
+    end
+
+    puts "Completed in #{"%.2f" % (time * 1000)} ms."
+  end
+end
