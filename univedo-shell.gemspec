@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "coolline", "~> 0.4"
   spec.add_dependency "coderay", "~> 1.1"
   spec.add_dependency "terminal-table", "~> 1.4"
-  spec.add_dependency "runivedo", "~> 0.1.0"
+  spec.add_dependency "runivedo", "~> 0.2.0"
   spec.add_dependency "term-ansicolor", "~> 1.3"
 
   spec.add_development_dependency "bundler", "~> 1.6"
