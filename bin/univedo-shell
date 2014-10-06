@@ -21,7 +21,7 @@ end
 
 options = {}
 op = OptionParser.new do |opts|
-  opts.banner = "Usage: univedo-shell [options] <url> <perspective>"
+  opts.banner = "Usage: univedo-shell [options] <url> <bucket> <perspective>"
 
   opts.on "-u", "--uts [UTS]", "Send UTS file to server" do |path|
     options[:uts] = path
@@ -34,11 +34,12 @@ op = OptionParser.new do |opts|
 end
 op.parse!
 
-if ARGV.count != 2
+if ARGV.count != 3
   puts op
   exit 1
 end
 options[:url] = ARGV.shift
+options[:bucket] = ARGV.shift
 options[:perspective] = ARGV.shift
 
 
@@ -46,7 +47,8 @@ options[:perspective] = ARGV.shift
 # Univedo connection
 #################################
 
-session = Runivedo::Session.new options[:url], username: "marvin"
+connection = Runivedo::Connection.new options[:url]
+session = connection.get_session(options[:bucket], {})
 puts "Connected."
 session.apply_uts(File.read(options[:uts])) if options[:uts]
 perspective = session.get_perspective(options[:perspective])
