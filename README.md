@@ -15,7 +15,7 @@ univedo-shell -u path/to/file.uts ws://localhost/f8018f09-fb75-4d3d-8e11-44b2dc7
 Then just type your SQL queries:
 
 ```sh
-$ univedo-shell ws://localhost/f8018f09-fb75-4d3d-8e11-44b2dc796130 468145f2-4ebb-405b-8a42-bcbab94cd0d0
+$ univedo-shell ws://localhost f8018f09-fb75-4d3d-8e11-44b2dc796130 468145f2-4ebb-405b-8a42-bcbab94cd0d0
 Connected.
 >> SELECT * FROM people LIMIT 2
 +------------+-----------------+----------------------+----+--------+-----------------------+
