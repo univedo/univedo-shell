@@ -48,7 +48,7 @@ options[:perspective] = ARGV.shift
 #################################
 
 connection = Runivedo::Connection.new options[:url]
-session = connection.get_session(options[:bucket], {})
+session = connection.get_session(options[:bucket], {username: "marvin"})
 puts "Connected."
 session.apply_uts(File.read(options[:uts])) if options[:uts]
 perspective = session.get_perspective(options[:perspective])
